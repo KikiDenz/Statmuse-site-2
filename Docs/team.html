@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Team Page — StatMuse-Style</title>
+  <style>
+    :root {
+      --primary: #0b5fb5;
+      --secondary: #ffffff;
+      --ink: #ffffff;
+      --ink-dim: rgba(255,255,255,.85);
+      --card: rgba(255,255,255,.08);
+      --shadow: rgba(0,0,0,.25);
+      --radius: 18px;
+    }
+    :root[data-theme="dark"]{
+      --primary: #0a0f16;
+      --secondary: #e5e7eb;
+      --ink: #e7eaf3;
+      --ink-dim: rgba(231,234,243,.8);
+      --card: rgba(255,255,255,.06);
+      --shadow: rgba(0,0,0,.45);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--primary); color: var(--ink); display:grid; grid-template-rows:auto 1fr auto; min-height:100vh; }
+    header { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; padding:14px 18px; border-bottom:1px solid rgba(255,255,255,.2); background: linear-gradient(0deg, rgba(0,0,0,.10), rgba(0,0,0,.10)), var(--primary); }
+    .header-left{justify-self:start}.header-center{justify-self:center}.header-right{justify-self:end}
+    .team-logo{width:110px;height:110px;border-radius:16px;background:#fff;display:grid;place-items:center;overflow:hidden;box-shadow:0 10px 24px var(--shadow)}
+    .team-logo img{width:100%;height:100%;object-fit:cover}
+    .title{font-size:1.6rem;font-weight:900}.muted{color:var(--ink-dim)}
+    main{width:min(1200px,95vw);margin:22px auto;display:grid;gap:18px}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:0 16px 36px var(--shadow);padding:16px}
+    .grid{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}@media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .roster-card{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center}
+    .avatar{width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid var(--secondary)}.avatar img{width:100%;height:100%;object-fit:cover}
+    .name{font-weight:900}.jersey{font-weight:900;opacity:.95}
+    table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{padding:8px 6px;text-align:right}th{border-bottom:1px solid rgba(255,255,255,.25)}td{border-bottom:1px dashed rgba(255,255,255,.18)}th:first-child,td:first-child{text-align:left}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .pill{background:rgba(255,255,255,.15);padding:6px 10px;border-radius:999px}
+    .nav a{color:var(--primary);background:#fff;padding:8px 12px;border-radius:999px;font-weight:800;text-decoration:none}
+    .toggle{background:#fff;color:var(--primary);border:0;border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <div class="title" id="teamTitle">Team</div>
+      <div class="muted" id="teamSub">Roster & Games</div>
+    </div>
+    <div class="header-center"><div class="team-logo"><img id="teamLogo" alt="Team logo" /></div></div>
+    <div class="header-right"><button id="themeToggle" class="toggle">🌙 Dark</button></div>
+  </header>
+
+  <main>
+    <!-- Roster -->
+    <section class="card">
+      <h3>Roster</h3>
+      <div id="roster" class="grid"></div>
+    </section>
+
+    <!-- Team Games -->
+    <section class="card">
+      <h3>Games</h3>
+      <table id="gamesTable">
+        <thead><tr><th>Date</th><th>Opponent</th><th>Score</th><th>W/L</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="muted">Add results below (stored in your browser).</div>
+    </section>
+
+    <details class="card">
+      <summary>Add Team Game</summary>
+      <div class="row">
+        <div><div class="muted">Date</div><input id="gDate" type="date" /></div>
+        <div><div class="muted">Opponent</div><input id="opp" placeholder="Opponent name" /></div>
+        <div><div class="muted">Team Score</div><input id="us" type="number" placeholder="0" style="width:90px" /></div>
+        <div><div class="muted">Opp Score</div><input id="them" type="number" placeholder="0" style="width:90px" /></div>
+        <button id="addGameBtn" style="background:#fff;color:var(--primary)">Add</button>
+      </div>
+    </details>
+  </main>
+
+  <footer style="text-align:center;color:var(--ink-dim);padding:16px">Made for mock/demo use.</footer>
+
+  <script>
+    const TEAMS = {
+      'pretty-good': { name: 'Pretty Good Basketball Team', logo: 'assets/pretty_good_logo.png', colors: { primary: '#0b5fb5', secondary: '#ffffff' } },
+      'duncles': { name: 'Duncles', logo: 'assets/duncles_logo.png', colors: { primary: '#222222', secondary: '#ffffff' } },
+      'sweaty-already': { name: 'Sweaty Already', logo: 'assets/sweaty_logo.png', colors: { primary: '#7a2c86', secondary: '#ffffff' } }
+    };
+    const PLAYERS = {
+      'kyle-denzin': { name: 'Kyle Denzin', portrait: 'assets/kyle_portrait.png', teams: { 'pretty-good': { jersey: 37 }, 'duncles': { jersey: 0 }, 'sweaty-already': { jersey: 5 } } },
+      'levi-denzin': { name: 'Levi Denzin', portrait: 'assets/levi_portrait.png', teams: { 'pretty-good': { jersey: 0 } } },
+      'findlay-wendtman': { name: 'Findlay Wendtman', portrait: 'assets/findlay_portrait.png', teams: { 'pretty-good': { jersey: 28 } } }
+    };
+    const STORAGE_KEY = 'sm_player_stats_v2';
+    const TEAM_GAMES_KEY = 'sm_team_games_v1';
+
+    const url = new URL(window.location.href);
+    const teamId = url.searchParams.get('team') || 'pretty-good';
+
+    const $ = (id)=>document.getElementById(id);
+    function qf(n){ return (Math.round(n*10)/10).toFixed(1); }
+    function pct(m,a){ return a>0 ? qf(100*m/a) : '0.0'; }
+    function loadAll(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch{ return {} } }
+    function saveAll(d){ localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+    function loadTeamGames(){ try{ return JSON.parse(localStorage.getItem(TEAM_GAMES_KEY)) || {}; }catch{ return {} } }
+    function saveTeamGames(d){ localStorage.setItem(TEAM_GAMES_KEY, JSON.stringify(d)); }
+    function ensureContainer(db, playerId, teamId){
+      db[playerId] ||= {}; db[playerId][teamId] ||= { seasons: {}, currentSeason: null };
+      if(!db[playerId][teamId].currentSeason){ const id = new Date().getFullYear().toString(); db[playerId][teamId].seasons[id] = { name: id, games: [] }; db[playerId][teamId].currentSeason = id; }
+    }
+    function calcPts(fgm,tpm,ftm){ const two = Math.max((+fgm||0) - (+tpm||0), 0); return 2*two + 3*(+tpm||0) + (+ftm||0); }
+    function sums(games){
+      return games.reduce((A,g)=>{
+        const fgm=+g.fgm||0, fga=+g.fga||0, tpm=+g.tpm||0, tpa=+g.tpa||0, ftm=+g.ftm||0, fta=+g.fta||0;
+        const pts = calcPts(fgm,tpm,ftm);
+        return { gp:A.gp+1, pts:A.pts+pts, reb:A.reb+(+g.reb||0), ast:A.ast+(+g.ast||0), fgm:A.fgm+fgm, fga:A.fga+fga, tpm:A.tpm+tpm, tpa:A.tpa+tpa, ftm:A.ftm+ftm, fta:A.fta+fta };
+      }, { gp:0, pts:0, reb:0, ast:0, fgm:0, fga:0, tpm:0, tpa:0, ftm:0, fta:0 });
+    }
+
+    // theme
+    const THEME_KEY='sm_theme_mode';
+    document.documentElement.setAttribute('data-theme', (localStorage.getItem(THEME_KEY)||'team') === 'dark' ? 'dark' : 'team');
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      const cur=document.documentElement.getAttribute('data-theme'); const next=cur==='dark'?'team':'dark'; document.documentElement.setAttribute('data-theme', next); localStorage.setItem(THEME_KEY, next);
+      document.getElementById('themeToggle').textContent = next==='dark'?'☀️ Light':'🌙 Dark';
+    });
+    if((localStorage.getItem(THEME_KEY)||'team') === 'dark'){ document.getElementById('themeToggle').textContent = '☀️ Light'; }
+
+    const t = TEAMS[teamId];
+    document.getElementById('teamTitle').textContent = t?.name || teamId;
+    document.getElementById('teamLogo').src = t?.logo || '';
+    document.body.style.setProperty('--primary', t?.colors?.primary || '#0b5fb5');
+    document.body.style.setProperty('--secondary', t?.colors?.secondary || '#ffffff');
+
+    const db = loadAll();
+    // Build roster
+    const rosterEl = document.getElementById('roster');
+    Object.entries(PLAYERS).forEach(([pid,info])=>{
+      if(!info.teams[teamId]) return;
+      ensureContainer(db, pid, teamId);
+      const node = db[pid][teamId]; const cur = node.seasons[node.currentSeason]; const S = sums(cur.games);
+      const avgPTS = S.gp? (S.pts/S.gp):0, avgREB = S.gp? (S.reb/S.gp):0, avgAST = S.gp? (S.ast/S.gp):0;
+      const card = document.createElement('a');
+      card.href = `index.html?player=${pid}&team=${teamId}`;
+      card.className = 'card roster-card';
+      card.innerHTML = `<div class="avatar"><img src="${info.portrait}" alt="${info.name}" /></div>
+        <div>
+          <div class="name">${info.name}</div>
+          <div class="jersey">#${info.teams[teamId].jersey}</div>
+          <div class="row"><span class="pill">PTS ${avgPTS.toFixed(1)}</span><span class="pill">REB ${avgREB.toFixed(1)}</span><span class="pill">AST ${avgAST.toFixed(1)}</span></div>
+        </div>`;
+      rosterEl.appendChild(card);
+    });
+    saveAll(db);
+
+    // Team games
+    const tg = loadTeamGames();
+    tg[teamId] ||= [];
+    const tbody = document.querySelector('#gamesTable tbody');
+    function renderGames(){
+      tbody.innerHTML = '';
+      tg[teamId].forEach((g,i)=>{
+        const wl = (+g.us > +g.them) ? 'W' : ((+g.us < +g.them) ? 'L' : 'T');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${g.date||''}</td><td>${g.opp||''}</td><td>${g.us||0}–${g.them||0}</td><td>${wl}</td>
+                        <td><button data-i="${i}" style="background:#fff;color:var(--primary);border:0;border-radius:8px;padding:6px 10px;cursor:pointer">✕</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    renderGames();
+
+    // Add team game
+    document.getElementById('addGameBtn').addEventListener('click', ()=>{
+      const d = document.getElementById('gDate').value;
+      const opp = document.getElementById('opp').value;
+      const us = parseInt(document.getElementById('us').value||'0',10);
+      const them = parseInt(document.getElementById('them').value||'0',10);
+      tg[teamId].push({ date:d, opp, us, them });
+      saveTeamGames(tg);
+      ['gDate','opp','us','them'].forEach(id=> document.getElementById(id).value = '');
+      renderGames();
+    });
+
+    tbody.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-i]'); if(!btn) return;
+      tg[teamId].splice(parseInt(btn.dataset.i,10),1);
+      saveTeamGames(tg); renderGames();
+    });
+  </script>
+</body>
+</html>

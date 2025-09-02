@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Player Page — StatMuse-Style</title>
+  <style>
+    :root {
+      --primary: #0b5fb5;   /* Pretty Good = royal blue */
+      --secondary: #ffffff;
+      --ink: #ffffff;
+      --ink-dim: rgba(255,255,255,.85);
+      --card: rgba(255,255,255,.08);
+      --shadow: rgba(0,0,0,.25);
+      --radius: 18px;
+    }
+    :root[data-theme="dark"]{
+      --primary: #0a0f16;
+      --secondary: #e5e7eb;
+      --ink: #e7eaf3;
+      --ink-dim: rgba(231,234,243,.8);
+      --card: rgba(255,255,255,.06);
+      --shadow: rgba(0,0,0,.45);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--primary);
+      color: var(--ink);
+      min-height: 100vh;
+      display: grid; grid-template-rows: auto 1fr auto;
+    }
+    header {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center;
+      padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,.2);
+      background: linear-gradient(0deg, rgba(0,0,0,.10), rgba(0,0,0,.10)), var(--primary);
+    }
+    .header-left { justify-self: start; }
+    .header-center { justify-self: center; }
+    .header-right { justify-self: end; display:flex; gap:10px; align-items:center; }
+    .team-logo { width: 100px; height: 100px; border-radius: 16px; background:#fff; display:grid; place-items:center; overflow:hidden; box-shadow: 0 10px 24px var(--shadow); }
+    .team-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .header-title { font-size: 1.4rem; font-weight: 800; letter-spacing:.2px; }
+    .header-sub { color: var(--ink-dim); font-size:.95rem; margin-top: 4px; }
+    .nav { display:flex; gap:8px; }
+    .nav a { text-decoration:none; color: var(--primary); background:#fff; padding:8px 12px; border-radius:999px; font-weight:700; }
+    .toggle { background:#fff; color: var(--primary); border:0; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
+    main { width: min(1200px, 95vw); margin: 22px auto; display:grid; gap: 18px; }
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: 0 16px 36px var(--shadow); padding: 16px; }
+    .player-card { display:grid; grid-template-columns: 160px 1fr; gap:16px; align-items:center; }
+    .avatar { width:160px; height:160px; border-radius:50%; overflow:hidden; border:4px solid var(--secondary); }
+    .avatar img { width:100%; height:100%; object-fit: cover; }
+    .meta { display:grid; gap:8px; }
+    .name { font-size:1.8rem; font-weight:900; line-height:1.1; }
+    .jersey { font-size:1.4rem; font-weight:900; line-height:1; }
+    .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .pill { background: rgba(255,255,255,.20); padding:8px 12px; border-radius:999px; display:inline-flex; gap:8px; align-items:center; }
+    .statline { display:flex; gap:10px; flex-wrap:wrap; }
+    .statline .chip { background: rgba(255,255,255,.15); padding:6px 10px; border-radius:999px; }
+    select, input, button { height: 40px; border-radius: 10px; border: 0; }
+    select, input { padding: 0 10px; font-size: .95rem; }
+    button { padding: 0 12px; font-weight: 800; cursor: pointer; }
+    .grid { display:grid; gap:16px; grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } .player-card { grid-template-columns: 1fr; text-align:center; } .row { justify-content:center; } .header-left{justify-self:center} .header-right{justify-self:center} }
+    .big { font-size:1.7rem; font-weight:800; line-height:1.2; }
+    .muted { color: var(--ink-dim); }
+    table { width:100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { padding: 8px 6px; text-align:right; }
+    th { border-bottom: 1px solid rgba(255,255,255,.25); }
+    td { border-bottom: 1px dashed rgba(255,255,255,.18); }
+    th:first-child, td:first-child { text-align:left; }
+    details.card summary { cursor: pointer; font-weight: 800; }
+    details.card[open] summary { margin-bottom: 12px; }
+    footer { text-align:center; color: var(--ink-dim); padding: 18px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <div class="header-title" id="headerTitle">Pretty Good Basketball Team</div>
+      <div class="header-sub" id="headerSub">Player page</div>
+    </div>
+    <div class="header-center">
+      <div class="team-logo"><img id="teamLogo" alt="Team logo" /></div>
+    </div>
+    <div class="header-right">
+      <nav class="nav">
+        <a id="linkTeam" href="#">Team Page</a>
+      </nav>
+      <button id="themeToggle" class="toggle" title="Toggle dark mode">🌙 Dark</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Player / Hero with inline career highs -->
+    <section class="card player-card">
+      <div class="avatar"><img id="playerImg" src="assets/kyle_portrait.png" alt="Player portrait" /></div>
+      <div class="meta">
+        <div>
+          <div class="name" id="playerName" contenteditable spellcheck="false">Kyle Denzin</div>
+          <div class="jersey" id="jersey">#37</div>
+        </div>
+        <div class="row">
+          <span class="pill">Team <select id="teamSelect"></select></span>
+          <span class="pill">Season <select id="seasonSelect"></select><button id="newSeasonBtn">+ Season</button></span>
+        </div>
+        <!-- Inline Career Highs (across all teams) -->
+        <div class="statline" id="careerHighsInline"></div>
+        <div class="muted">Tip: Career highs are across all teams. Change team with the dropdown. Data is stored per <em>player × team</em>.</div>
+      </div>
+    </section>
+
+    <!-- Summary Cards -->
+    <section class="grid">
+      <div class="card">
+        <div class="big" id="headline">Kyle Denzin has averaged 0.0 PTS, 0.0 REB, 0.0 AST on 0.0% FG, 0.0% 3PT, 0.0% FT in 0 games this season.</div>
+        <div class="muted" id="headlineNote">FG/3PT/FT are computed from makes/attempts.</div>
+      </div>
+
+      <div class="card">
+        <h3>Season (Current Team)</h3>
+        <div class="statline" id="seasonTotalsLine"></div>
+        <div class="muted" id="seasonAverages"></div>
+      </div>
+
+      <div class="card">
+        <h3>Career</h3>
+        <div class="statline"><div class="chip" id="careerTeamTotals">Team totals: …</div><div class="chip" id="careerAllTotals">Across teams totals: …</div></div>
+        <div class="muted" id="careerNotes">Per-game averages shown in tooltips on hover.</div>
+      </div>
+    </section>
+
+    <!-- Career Highs Bar (full width) -->
+    <section class="card">
+      <h3>Career Highs</h3>
+      <div class="statline" id="careerHighsLine"></div>
+    </section>
+
+    <!-- Games Table -->
+    <section class="card">
+      <table id="gamesTable">
+        <thead>
+          <tr>
+            <th>Date</th><th>PTS</th><th>REB</th><th>OREB</th><th>AST</th><th>HA</th><th>STL</th><th>BLK</th><th>TO</th>
+            <th>FG</th><th>3PT</th><th>FT</th><th>FG%</th><th>3P%</th><th>FT%</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="muted">Points are auto-calculated: <code>PTS = 2*max(FGM − 3PM, 0) + 3*3PM + FTM</code>.</div>
+    </section>
+
+    <!-- Collapsible Add Game (below table) -->
+    <details class="card">
+      <summary>Add Game</summary>
+      <div class="row" style="gap:10px; align-items:end; flex-wrap:wrap;">
+        <div><div class="muted">Date</div><input id="gDate" type="date" /></div>
+        <div><div class="muted">FG (M-A)</div><div class="row"><input id="fgm" type="number" placeholder="FGM" style="width:90px" /> <input id="fga" type="number" placeholder="FGA" style="width:90px" /></div></div>
+        <div><div class="muted">3PT (M-A)</div><div class="row"><input id="tpm" type="number" placeholder="3PM" style="width:90px" /> <input id="tpa" type="number" placeholder="3PA" style="width:90px" /></div></div>
+        <div><div class="muted">FT (M-A)</div><div class="row"><input id="ftm" type="number" placeholder="FTM" style="width:90px" /> <input id="fta" type="number" placeholder="FTA" style="width:90px" /></div></div>
+        <div><div class="muted">PTS (auto)</div><input id="ptsDisplay" type="text" readonly style="width:90px; background:#eee;" /></div>
+        <div><div class="muted">REB</div><input id="reb" type="number" placeholder="REB" style="width:90px" /></div>
+        <div><div class="muted">OREB</div><input id="oreb" type="number" placeholder="OREB" style="width:90px" /></div>
+        <div><div class="muted">AST</div><input id="ast" type="number" placeholder="AST" style="width:90px" /></div>
+        <div><div class="muted">HA</div><input id="ha" type="number" placeholder="Hockey Ast" style="width:110px" /></div>
+        <div><div class="muted">STL</div><input id="stl" type="number" placeholder="STL" style="width:90px" /></div>
+        <div><div class="muted">BLK</div><input id="blk" type="number" placeholder="BLK" style="width:90px" /></div>
+        <div><div class="muted">TO</div><input id="to" type="number" placeholder="TO" style="width:90px" /></div>
+        <button id="addGameBtn" style="background:#fff;color:var(--primary)">Add Game</button>
+        <button id="resetSeasonBtn" style="background:#ffffff;color:var(--primary)">Reset Season</button>
+        <button id="resetPlayerTeamBtn" style="background:#fff;color:var(--primary)" title="Clear all seasons for this player × team">Reset Player×Team</button>
+      </div>
+    </details>
+  </main>
+
+  <footer>Made for mock/demo use. Not affiliated with StatMuse.</footer>
+
+  <script>
+    const TEAMS = {
+      'pretty-good': { name: 'Pretty Good Basketball Team', logo: 'assets/pretty_good_logo.png', colors: { primary: '#0b5fb5', secondary: '#ffffff' } },
+      'duncles': { name: 'Duncles', logo: 'assets/duncles_logo.png', colors: { primary: '#222222', secondary: '#ffffff' } },
+      'sweaty-already': { name: 'Sweaty Already', logo: 'assets/sweaty_logo.png', colors: { primary: '#7a2c86', secondary: '#ffffff' } },
+      'uni': { name: 'Univerity of Newcastle UBL', logo: 'assets/newcastle_ubl_logo.png', colors: { primary: '#000000', secondary: '#0b5fb5' } }
+    };
+    const PLAYERS = {
+      'kyle-denzin': { name: 'Kyle Denzin', portrait: 'assets/kyle_portrait.png', teams: { 'pretty-good': { jersey: 37 }, 'duncles': { jersey: 0 }, 'sweaty-already': { jersey: 5 } } },
+      'levi-denzin': { name: 'Levi Denzin', portrait: 'assets/levi_portrait.png', teams: { 'pretty-good': { jersey: 0 }, 'uni': { jersey: 9, portrait: 'assets/levi_uni_portrait.png' } } },
+      'findlay-wendtman': { name: 'Findlay Wendtman', portrait: 'assets/findlay_portrait.png', teams: { 'pretty-good': { jersey: 28 } } }
+    };
+
+    const STORAGE_KEY = 'sm_player_stats_v2';
+    const TEAM_GAMES_KEY = 'sm_team_games_v1';
+
+    const $ = (id)=>document.getElementById(id);
+    function loadAll(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch{ return {} } }
+    function saveAll(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    function loadTeamGames(){ try{ return JSON.parse(localStorage.getItem(TEAM_GAMES_KEY)) || {}; }catch{ return {} } }
+    function saveTeamGames(data){ localStorage.setItem(TEAM_GAMES_KEY, JSON.stringify(data)); }
+
+    function ensureContainer(db, playerId, teamId){
+      db[playerId] ||= {}; db[playerId][teamId] ||= { seasons: {}, currentSeason: null };
+      if(!db[playerId][teamId].currentSeason){ const id = new Date().getFullYear().toString(); db[playerId][teamId].seasons[id] = { name: id, games: [] }; db[playerId][teamId].currentSeason = id; }
+    }
+
+    function qf(n){ return (Math.round(n*10)/10).toFixed(1); }
+    function pct(m,a){ return a>0 ? qf(100*m/a) : '0.0'; }
+    function calcPts(fgm,tpm,ftm){ const two = Math.max((+fgm||0) - (+tpm||0), 0); return 2*two + 3*(+tpm||0) + (+ftm||0); }
+
+    function sums(games){
+      return games.reduce((A,g)=>{
+        const fgm=+g.fgm||0, fga=+g.fga||0, tpm=+g.tpm||0, tpa=+g.tpa||0, ftm=+g.ftm||0, fta=+g.fta||0;
+        const pts = calcPts(fgm,tpm,ftm);
+        return { gp:A.gp+1, pts:A.pts+pts, reb:A.reb+(+g.reb||0), oreb:A.oreb+(+g.oreb||0), ast:A.ast+(+g.ast||0), ha:A.ha+(+g.ha||0),
+                 stl:A.stl+(+g.stl||0), blk:A.blk+(+g.blk||0), to:A.to+(+g.to||0),
+                 fgm:A.fgm+fgm, fga:A.fga+fga, tpm:A.tpm+tpm, tpa:A.tpa+tpa, ftm:A.ftm+ftm, fta:A.fta+fta };
+      }, { gp:0, pts:0, reb:0, oreb:0, ast:0, ha:0, stl:0, blk:0, to:0, fgm:0, fga:0, tpm:0, tpa:0, ftm:0, fta:0 });
+    }
+    function gamesOf(db, playerId, teamId){ const node = db[playerId]?.[teamId]; if(!node) return []; return Object.values(node.seasons).flatMap(s=>s.games); }
+
+    // URL params
+    const url = new URL(window.location.href);
+    const PLAYER_ID = url.searchParams.get('player') || 'kyle-denzin';
+    const DEFAULT_TEAM = url.searchParams.get('team') || 'pretty-good';
+    const playerInfo = PLAYERS[PLAYER_ID] || PLAYERS['kyle-denzin'];
+
+    // theme
+    const THEME_KEY = 'sm_theme_mode';
+    document.documentElement.setAttribute('data-theme', (localStorage.getItem(THEME_KEY)||'team') === 'dark' ? 'dark' : 'team');
+
+    const db = loadAll();
+    const teamGames = loadTeamGames();
+    ensureContainer(db, PLAYER_ID, DEFAULT_TEAM);
+    saveAll(db);
+
+    // Bindings
+    const teamLogo = $('teamLogo'); const headerTitle = $('headerTitle'); const headerSub=$('headerSub'); const linkTeam=$('linkTeam'); const themeToggle=$('themeToggle');
+    const playerNameEl=$('playerName'); const playerImg=$('playerImg'); const jerseyEl=$('jersey'); const teamSelect=$('teamSelect'); const seasonSelect=$('seasonSelect');
+    const headline=$('headline'); const seasonTotalsLine=$('seasonTotalsLine'); const seasonAverages=$('seasonAverages'); const careerTeamTotals=$('careerTeamTotals'); const careerAllTotals=$('careerAllTotals');
+    const careerHighsLine=$('careerHighsLine'); const careerHighsInline=$('careerHighsInline');
+    const gamesTBody = document.querySelector('#gamesTable tbody');
+
+   // Seed header/player meta
+    playerNameEl.textContent = playerInfo.name;
+
+    // Get the currently selected team ID
+    const selectedTeamId = teamSelect.value; 
+
+    // Check for a team-specific portrait first
+    if (playerInfo.teams[selectedTeamId] && playerInfo.teams[selectedTeamId].portrait) {
+        playerImg.src = playerInfo.teams[selectedTeamId].portrait;
+}     else {
+    // If no team-specific portrait, use the general one
+        playerImg.src = playerInfo.portrait;
+}
+
+    function buildTeamSelect(){
+      teamSelect.innerHTML = '';
+        Object.keys(playerInfo.teams).forEach(teamId => {
+            const opt = document.createElement('option');
+            opt.value = teamId; 
+            opt.textContent = `${TEAMS[teamId]?.name || teamId}`;
+            teamSelect.appendChild(opt);
+        });
+        if (playerInfo.teams[DEFAULT_TEAM]) teamSelect.value = DEFAULT_TEAM;
+}
+    function applyTeamTheme(teamId){
+      const t = TEAMS[teamId];
+      document.documentElement.style.setProperty('--primary', t?.colors?.primary || '#0b5fb5');
+      document.documentElement.style.setProperty('--secondary', t?.colors?.secondary || '#ffffff');
+      teamLogo.src = t?.logo || '';
+      headerTitle.textContent = t?.name || teamId;
+      headerSub.textContent = `${playerInfo.name} — Player page`;
+      jerseyEl.textContent = `#${playerInfo.teams[teamId].jersey}`;
+      linkTeam.href = `team.html?team=${teamId}`;
+    }
+
+    function refreshSeasonDropdown(teamId){
+      ensureContainer(db, PLAYER_ID, teamId);
+      const node = db[PLAYER_ID][teamId];
+      seasonSelect.innerHTML = '';
+      Object.entries(node.seasons).forEach(([id, s])=>{
+        const opt = document.createElement('option');
+        opt.value = id; opt.textContent = s.name; if(id===node.currentSeason) opt.selected = true; seasonSelect.appendChild(opt);
+      });
+    }
+
+    function selectSeason(teamId, seasonId){
+      db[PLAYER_ID][teamId].currentSeason = seasonId; saveAll(db); render();
+    }
+
+    function createSeason(teamId){
+      ensureContainer(db, PLAYER_ID, teamId);
+      const node = db[PLAYER_ID][teamId];
+      const defaultName = new Date().getFullYear().toString();
+      const name = prompt('Season name (e.g., 2024-25):', defaultName);
+      if(!name) return;
+      const id = `${Date.now()}`;
+      node.seasons[id] = { name, games: [] };
+      node.currentSeason = id; saveAll(db); refreshSeasonDropdown(teamId); render();
+    }
+
+    function addGame(teamId, g){
+      ensureContainer(db, PLAYER_ID, teamId);
+      const node = db[PLAYER_ID][teamId];
+      node.seasons[node.currentSeason].games.push(g);
+      saveAll(db); render();
+    }
+    function deleteGame(teamId, idx){
+      ensureContainer(db, PLAYER_ID, teamId);
+      const node = db[PLAYER_ID][teamId];
+      node.seasons[node.currentSeason].games.splice(idx,1);
+      saveAll(db); render();
+    }
+
+    function resetSeason(teamId){
+      const node = db[PLAYER_ID][teamId];
+      if(!node) return; const s = node.seasons[node.currentSeason];
+      if(confirm(`Clear all games for season "${s.name}"?`)){
+        s.games = []; saveAll(db); render();
+      }
+    }
+    function resetPlayerTeam(teamId){
+      if(confirm('Clear ALL seasons for this player × team?')){
+        db[PLAYER_ID][teamId] = { seasons:{}, currentSeason:null }; ensureContainer(db, PLAYER_ID, teamId); saveAll(db); render();
+      }
+    }
+
+    // ---------- Calculations ----------
+    function calcHighs(games){
+      const highs = { pts:0, reb:0, oreb:0, ast:0, ha:0, stl:0, blk:0, to:0, tpm:0 };
+      games.forEach(g=>{
+        const fgm=+g.fgm||0, tpm=+g.tpm||0, ftm=+g.ftm||0;
+        const pts = calcPts(fgm,tpm,ftm);
+        highs.pts = Math.max(highs.pts, pts);
+        highs.reb = Math.max(highs.reb, +g.reb||0);
+        highs.oreb= Math.max(highs.oreb, +g.oreb||0);
+        highs.ast = Math.max(highs.ast, +g.ast||0);
+        highs.ha  = Math.max(highs.ha,  +g.ha ||0);
+        highs.stl = Math.max(highs.stl, +g.stl||0);
+        highs.blk = Math.max(highs.blk, +g.blk||0);
+        highs.to  = Math.max(highs.to,  +g.to ||0);
+        highs.tpm = Math.max(highs.tpm, tpm);
+      });
+      return highs;
+    }
+
+    function renderHighsInline(){
+      const allTeamIds = Object.keys(playerInfo.teams);
+      const allGames = allTeamIds.flatMap(tid => gamesOf(db, PLAYER_ID, tid));
+      const highs = calcHighs(allGames);
+      careerHighsInline.innerHTML='';
+      ['PTS','REB','AST','STL','BLK','TO','OREB','HA','3PM'].forEach(k=>{
+        const val = (k==='3PM') ? highs.tpm : highs[k.toLowerCase()];
+        const d=document.createElement('div'); d.className='chip'; d.textContent=`${k} ${val||0}`; careerHighsInline.appendChild(d);
+      });
+    }
+
+    function render(){
+      const teamId = teamSelect.value;
+      applyTeamTheme(teamId);
+      refreshSeasonDropdown(teamId);
+
+      const node = db[PLAYER_ID][teamId];
+      const cur = node.seasons[node.currentSeason];
+      const S = sums(cur.games);
+
+      const fgPct = pct(S.fgm, S.fga), tpPct = pct(S.tpm, S.tpa), ftPct = pct(S.ftm, S.fta);
+      headline.textContent = `${playerInfo.name} has averaged ${qf(S.gp? S.pts/S.gp:0)} PTS, ${qf(S.gp? S.reb/S.gp:0)} REB, ${qf(S.gp? S.ast/S.gp:0)} AST on ${fgPct}% FG, ${tpPct}% 3PT, ${ftPct}% FT in ${S.gp} ${S.gp===1?'game':'games'} this season.`;
+
+      seasonTotalsLine.innerHTML = '';
+      const chips = [
+        `PTS ${S.pts}`, `REB ${S.reb}`, `OREB ${S.oreb}`, `AST ${S.ast}`, `HA ${S.ha}`, `STL ${S.stl}`, `BLK ${S.blk}`, `TO ${S.to}`,
+        `FG ${S.fgm}-${S.fga} (${fgPct}%)`, `3PT ${S.tpm}-${S.tpa} (${tpPct}%)`, `FT ${S.ftm}-${S.fta} (${ftPct}%)`
+      ];
+      chips.forEach(t=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=t; seasonTotalsLine.appendChild(d); });
+
+      seasonAverages.textContent = `Per game: PTS ${qf(S.gp?S.pts/S.gp:0)}, REB ${qf(S.gp?S.reb/S.gp:0)}, AST ${qf(S.gp?S.ast/S.gp:0)}, OREB ${qf(S.gp?S.oreb/S.gp:0)}, HA ${qf(S.gp?S.ha/S.gp:0)}, STL ${qf(S.gp?S.stl/S.gp:0)}, BLK ${qf(S.gp?S.blk/S.gp:0)}, TO ${qf(S.gp?S.to/S.gp:0)} | FG ${qf(S.gp?100*S.fgm/S.fga:0)}%, 3PT ${qf(S.gp?100*S.tpm/S.tpa:0)}%, FT ${qf(S.gp?100*S.ftm/S.fta:0)}% (GP ${S.gp})`;
+
+      // Career per team
+      const teamGames = gamesOf(db, PLAYER_ID, teamId);
+      const CT = sums(teamGames);
+      const ctNote = `Team GP ${CT.gp} | PTS ${CT.pts}, REB ${CT.reb}, AST ${CT.ast} | FG ${CT.fgm}-${CT.fga} (${pct(CT.fgm,CT.fga)}%)`;
+      careerTeamTotals.textContent = ctNote;
+
+      // Career across teams
+      const allTeamIds = Object.keys(playerInfo.teams);
+      const allPGames = allTeamIds.flatMap(tid => gamesOf(db, PLAYER_ID, tid));
+      const CA = sums(allPGames);
+      const caNote = `All Teams GP ${CA.gp} | PTS ${CA.pts}, REB ${CA.reb}, AST ${CA.ast} | FG ${CA.fgm}-${CA.fga} (${pct(CA.fgm,CA.fga)}%)`;
+      careerAllTotals.textContent = caNote;
+
+      // Career Highs (across all teams)
+      const highs = calcHighs(allPGames);
+      careerHighsLine.innerHTML = '';
+      Object.entries({PTS:highs.pts, REB:highs.reb, OREB:highs.oreb, AST:highs.ast, HA:highs.ha, STL:highs.stl, BLK:highs.blk, TO:highs.to, '3PM':highs.tpm}).forEach(([k,v])=>{
+        const d=document.createElement('div'); d.className='chip'; d.textContent=`${k} ${v}`; careerHighsLine.appendChild(d);
+      });
+
+      // Games table
+      gamesTBody.innerHTML = '';
+      cur.games.forEach((g,i)=>{
+        const fgm=+g.fgm||0, fga=+g.fga||0, tpm=+g.tpm||0, tpa=+g.tpa||0, ftm=+g.ftm||0, fta=+g.fta||0;
+        const pts = calcPts(fgm,tpm,ftm);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${g.d||''}</td><td>${pts}</td><td>${g.reb||0}</td><td>${g.oreb||0}</td><td>${g.ast||0}</td><td>${g.ha||0}</td><td>${g.stl||0}</td><td>${g.blk||0}</td><td>${g.to||0}</td>
+          <td>${fgm}-${fga}</td><td>${tpm}-${tpa}</td><td>${ftm}-${fta}</td>
+          <td>${pct(fgm,fga)}%</td><td>${pct(tpm,tpa)}%</td><td>${pct(ftm,fta)}%</td>
+          <td><button data-i="${i}" style="background:#fff;color:var(--primary);border:0;border-radius:8px;padding:6px 10px;cursor:pointer">✕</button></td>`;
+        gamesTBody.appendChild(tr);
+      });
+
+      // Inline highs refresh
+      renderHighsInline();
+    }
+
+    // ============================ EVENT WIRING ===============================
+    buildTeamSelect();
+    applyTeamTheme(teamSelect.value);
+    refreshSeasonDropdown(teamSelect.value);
+    render();
+
+    // Name edit (visual only)
+    playerNameEl.addEventListener('input', ()=>{});
+
+    // Team changes
+    teamSelect.addEventListener('change', ()=>{ ensureContainer(db, PLAYER_ID, teamSelect.value); saveAll(db); render(); });
+
+    // Season select
+    seasonSelect.addEventListener('change', e=> selectSeason(teamSelect.value, e.target.value));
+    $('newSeasonBtn').addEventListener('click', ()=> createSeason(teamSelect.value));
+
+    // Live PTS preview
+    function updatePtsDisplay(){ const fgm = parseInt($('fgm').value||'0',10); const tpm = parseInt($('tpm').value||'0',10); const ftm = parseInt($('ftm').value||'0',10); $('ptsDisplay').value = calcPts(fgm,tpm,ftm); }
+    ['fgm','tpm','ftm'].forEach(id=> document.getElementById(id).addEventListener('input', updatePtsDisplay));
+
+    // Add game
+    $('addGameBtn').addEventListener('click', ()=>{
+      const g = {
+        d: $('gDate').value || '',
+        fgm: parseInt($('fgm').value||'0',10), fga: parseInt($('fga').value||'0',10),
+        tpm: parseInt($('tpm').value||'0',10), tpa: parseInt($('tpa').value||'0',10),
+        ftm: parseInt($('ftm').value||'0',10), fta: parseInt($('fta').value||'0',10),
+        reb: parseInt($('reb').value||'0',10), oreb: parseInt($('oreb').value||'0',10),
+        ast: parseInt($('ast').value||'0',10), ha: parseInt($('ha').value||'0',10),
+        stl: parseInt($('stl').value||'0',10), blk: parseInt($('blk').value||'0',10), to: parseInt($('to').value||'0',10)
+      };
+      addGame(teamSelect.value, g);
+      ['fgm','fga','tpm','tpa','ftm','fta','reb','oreb','ast','ha','stl','blk','to'].forEach(id=> $(id).value='');
+      $('ptsDisplay').value='';
+      renderHighsInline(); // highs might change after adding a game
+    });
+
+    // Delete game (event delegation)
+    gamesTBody.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-i]'); if(!btn) return; deleteGame(teamSelect.value, parseInt(btn.dataset.i,10));
+    });
+
+    // Resets
+    $('resetSeasonBtn').addEventListener('click', ()=> resetSeason(teamSelect.value));
+    $('resetPlayerTeamBtn').addEventListener('click', ()=> resetPlayerTeam(teamSelect.value));
+
+    // Theme toggle
+    themeToggle.addEventListener('click', ()=>{
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur === 'dark' ? 'team' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('sm_theme_mode', next);
+      themeToggle.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark';
+    });
+    if((localStorage.getItem('sm_theme_mode')||'team') === 'dark'){ themeToggle.textContent = '☀️ Light'; }
+  </script>
+</body>
+</html>
